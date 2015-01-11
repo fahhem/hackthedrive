@@ -95,18 +95,7 @@ var app = {
           calls_left--;
           if (calls_left == 0) app.choose_default_vin();
         }
-        app.api_caller('get', false, false, null, function(resp) {
-          // Need to make resp.data.length more calls after this.
-          calls_left--;
-          calls_left += resp.data.length;
-          resp.data.forEach(function(car) {
-            var vin = car.vin;
-            app.api_caller('get', vin, 'location', null, function(resp) {
-              app.vin_locations.push({lat: resp.data.lat, lon: resp.data.lon, vin: vin});
-              maybe_call_choose();
-            }, maybe_call_choose); // On error just skip.
-          });
-        });
+        app.update_vehicles(maybe_call_choose);
         app.watcher = navigator.geolocation.watchPosition(function(position) {
           // if current_position is null, this is the first call.
           var is_first = !app.current_position;
@@ -126,6 +115,23 @@ var app = {
           }
         }, {timeout: 3000});
 
+    },
+    update_vehicles: function(done_cb) {
+      app.api_caller('get', false, false, null, function(resp) {
+        // Need to make resp.data.length more calls after this.
+        var calls = resp.data.length;
+        var dec = function() {
+          calls--;
+          if (calls == 0) done_cb();
+        };
+        resp.data.forEach(function(car) {
+          var vin = car.vin;
+          app.api_caller('get', vin, 'location', null, function(resp) {
+            app.vin_locations[vin] = {lat: resp.data.lat, lon: resp.data.lon, vin: vin};
+            dec();
+          }, dec); // On error just skip.
+        });
+      });
     },
     set_status: function(status) {
       var prev = document.getElementById("user_status").innerHTML;
@@ -158,10 +164,16 @@ var app = {
     vin: 'WBY1Z4C53EV273080', // 'WBY1Z4C55EV273078',
     current_position: null,
     // Ends up sorted closest-farthest.
-    vin_locations: [],
+    vin_locations: {},
+    vin_order: [],
+    in_config: function() {
+      return document.getElementById('configure_section').style.display != 'none';
+    },
     score_vin_locations: function(update_display) {
       var best_score = Number.MAX_VALUE;
-      app.vin_locations.forEach(function(loc) {
+      for(var vin in app.vin_locations) {
+        if (!app.vin_locations.hasOwnProperty(vin)) continue;
+        var loc = app.vin_locations[vin];
         var score = Math.pow(app.current_position.lat - loc.lat, 2);
         score += Math.pow(app.current_position.lon - loc.lon, 2);
         score = Math.sqrt(score);
@@ -170,15 +182,16 @@ var app = {
           best_score = score;
           app.vin = loc.vin;
         }
-      });
-      app.vin_locations.sort(function(a, b){return a.score - b.score;});
+      }
+      app.vin_order = Object.keys(app.vin_locations);
+      app.vin_order.sort(function(a, b){return app.vin_locations[a].score - app.vin_locations[b].score;});
       // Update configure page if it's visible.
-      var showing = document.getElementById('configure_section').style.display != 'none';
-      if (update_display || showing) {
+      if (update_display || app.in_config()) {
         var cars_html = '';
-        app.vin_locations.forEach(function(loc) {
+        app.vin_order.forEach(function(vin) {
+          var loc = app.vin_locations[vin];
           cars_html += '<li><button onclick="app.choose_car(this)" data-vin="'
-            + loc.vin + '" class="button">VIN: ' + loc.vin.substr(loc.vin.length-4)
+            + vin + '" class="button">VIN: ' + vin.substr(vin.length-4)
             + (loc.score?' Distance: ' + Math.round(loc.score*60*5280) + ' ft':'')
             + '</button></li>';
         });
@@ -187,7 +200,7 @@ var app = {
     },
     choose_default_vin: function() {
       app.score_vin_locations();
-      app.set_vin(app.vin_locations[0].vin);
+      app.set_vin(app.vin_order[0]);
     },
     set_vin: function(vin) {
       app.vin = vin;
@@ -198,6 +211,7 @@ var app = {
     },
     configure: function() {
       app.score_vin_locations(true);
+
       document.getElementById('main').style.display = 'none';
       document.getElementById('configure_section').style.display = 'block';
       document.getElementById('store').onclick = function() {
@@ -205,6 +219,16 @@ var app = {
         app.current_profile.ac_temp++;
         app.set_profile(app.current_profile_name);
       };
+
+      var maybe_keep_updating = function(){
+        if (app.in_config()) {
+          setTimeout(function() {
+            console.log('updating');
+            app.update_vehicles(maybe_keep_updating);
+          }, 5000); // Don't spam the server...
+        }
+      };
+      maybe_keep_updating();
     },
     choose_car: function(el) {
       app.set_vin(el.dataset.vin);
