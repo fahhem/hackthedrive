@@ -1,2 +1,0 @@
-# hackthedrive
-HackTheDrive shared code
