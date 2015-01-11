@@ -1,0 +1,71 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "fahhem@gmail.com",
+    "longName": "Pebble Heart BMW",
+    "projectType": "pebblejs",
+    "resources": {
+        "media": [
+            {
+                "file": "images/menu_icon.png",
+                "menuIcon": true,
+                "name": "IMAGE_MENU_ICON",
+                "type": "png"
+            },
+            {
+                "file": "images/logo_splash.png",
+                "name": "IMAGE_LOGO_SPLASH",
+                "type": "png"
+            },
+            {
+                "file": "images/tile_splash.png",
+                "name": "IMAGE_TILE_SPLASH",
+                "type": "png"
+            },
+            {
+                "file": "fonts/UbuntuMono-Regular.ttf",
+                "name": "MONO_FONT_14",
+                "type": "font"
+            },
+            {
+                "file": "images/lock.png",
+                "name": "IMAGES_LOCK_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/light.png",
+                "name": "IMAGES_LIGHT_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/horn.png",
+                "name": "IMAGES_HORN_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/start_action_bar.png",
+                "name": "IMAGES_START_ACTION_BAR_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/car_action_bar.png",
+                "name": "IMAGES_CAR_ACTION_BAR_PNG",
+                "type": "png"
+            },
+            {
+                "file": "images/bmw_favicon.png",
+                "name": "IMAGES_BMW_FAVICON_PNG",
+                "type": "png"
+            }
+        ]
+    },
+    "shortName": "Pebble Heart BMW",
+    "uuid": "43b1b431-6002-4cfe-a62b-445f2bca7cc3",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
