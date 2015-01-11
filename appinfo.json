@@ -1,7 +1,7 @@
 {
     "appKeys": {},
     "capabilities": [
-        ""
+        "location"
     ],
     "companyName": "fahhem@gmail.com",
     "longName": "Pebble Heart BMW",
@@ -10,7 +10,6 @@
         "media": [
             {
                 "file": "images/menu_icon.png",
-                "menuIcon": true,
                 "name": "IMAGE_MENU_ICON",
                 "type": "png"
             },
@@ -56,6 +55,7 @@
             },
             {
                 "file": "images/bmw_favicon.png",
+                "menuIcon": true,
                 "name": "IMAGES_BMW_FAVICON_PNG",
                 "type": "png"
             }
